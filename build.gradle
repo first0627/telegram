@@ -20,15 +20,19 @@ repositories {
 springBoot {
     mainClass = 'com.auto.telegram.TelApplication'
 }
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.jsoup:jsoup:1.17.2'
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'io.github.cdimascio:java-dotenv:5.2.2'
 
 
-    tasks.named('test') {
-        useJUnitPlatform()
-    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }

@@ -1,13 +1,9 @@
 package org.sight.tel.controller;
 
 import java.util.List;
-import org.sight.tel.dto.TelegramChannel;
+import org.sight.tel.entity.SubscriberHistory;
 import org.sight.tel.service.TelegramService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -20,9 +16,16 @@ public class TelegramController {
     this.telegramService = telegramService;
   }
 
-  @GetMapping("/subscribers")
-  public ResponseEntity<List<TelegramChannel>> getSubscribers() {
-    List<TelegramChannel> data = telegramService.fetchSubscribers();
-    return ResponseEntity.ok(data);
+  // 수동 저장 API
+  @PostMapping("/save")
+  public String saveToday() {
+    telegramService.saveMissingTodaySubscribers();
+    return "오늘 구독자 수 저장 완료";
+  }
+
+  // 10일치 이력 조회 API
+  @GetMapping("/history")
+  public List<SubscriberHistory> getHistory() {
+    return telegramService.getLast10DaysData();
   }
 }

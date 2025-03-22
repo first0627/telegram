@@ -1,0 +1,1 @@
+org.springframework.boot.env.EnvironmentPostProcessor=org.sight.tel.DotenvEnvironmentPostProcessor
