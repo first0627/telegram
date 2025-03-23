@@ -75,7 +75,7 @@ public class TelegramService {
   // 메인 메서드
   public List<SubscriberHistory> getLast10DaysData() {
     LocalDate today = LocalDate.now();
-    LocalDate tenDaysAgo = today.minusDays(10);
+    LocalDate tenDaysAgo = today.minusDays(11);
 
     // 오늘 데이터 부족할 때만 동작
     List<SubscriberHistory> todayData = repository.findByDate(today);
