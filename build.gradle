@@ -18,7 +18,7 @@ repositories {
 }
 
 springBoot {
-    mainClass = 'com.auto.telegram.TelApplication'
+    mainClass = 'org.sight.tel.TelApplication'
 }
 
 dependencies {
