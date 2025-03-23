@@ -1,11 +1,14 @@
-# 1. Java 21 JDK가 포함된 베이스 이미지 사용
 FROM eclipse-temurin:21-jdk
 
-# 2. 앱 실행될 디렉토리 생성
 WORKDIR /app
 
-# 3. 로컬에서 빌드한 jar를 컨테이너에 복사
-COPY build/libs/*.jar app.jar
+COPY . .
 
-# 4. 앱 실행
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# gradle wrapper 실행 권한 부여
+RUN chmod +x ./gradlew
+
+# 빌드 수행
+RUN ./gradlew build --no-daemon
+
+# 최종 JAR 경로 확인 후 실행
+CMD ["java", "-jar", "build/libs/tel-0.0.1-SNAPSHOT.jar"]
