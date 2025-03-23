@@ -3,7 +3,6 @@ package org.sight.tel.service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -32,42 +31,50 @@ public class TelegramService {
     this.repository = repository;
   }
 
-  // 오늘 데이터가 없는 채널만 저장
-  public void saveMissingTodaySubscribers() {
+  public void saveTodaySubscribers() {
     LocalDate today = LocalDate.now();
-
-    // 오늘 이미 저장된 채널명 가져오기
-    List<SubscriberHistory> todayData = repository.findByDate(today);
-    Set<String> existingChannels =
-        todayData.stream().map(SubscriberHistory::getChannelName).collect(Collectors.toSet());
 
     channels.forEach(
         (name, url) -> {
-          if (!existingChannels.contains(name)) {
-            try {
-              Document doc = Jsoup.connect(url).get();
-              Elements subscriberElement = doc.select("div.tgme_page_extra");
+          try {
+            Document doc = Jsoup.connect(url).get();
+            Elements subscriberElement = doc.select("div.tgme_page_extra");
 
-              if (subscriberElement.isEmpty()) {
-                System.out.println("[" + name + "] 구독자 정보 없음, 건너뜀");
-                return;
+            if (subscriberElement.isEmpty()) {
+              System.out.println("[" + name + "] 구독자 정보 없음, 건너뜀");
+              return;
+            }
+
+            String subscriberText = subscriberElement.text();
+            if (subscriberText.isBlank()) {
+              System.out.println("[" + name + "] 구독자 텍스트가 비어있음, 건너뜀");
+              return;
+            }
+
+            int subscriberCount = Integer.parseInt(subscriberText.replaceAll("[^0-9]", ""));
+
+            // DB 조회
+            SubscriberHistory existing =
+                repository.findByChannelNameAndDate(name, today).orElse(null);
+
+            if (existing != null) {
+              // 값이 같으면 update 스킵
+              if (existing.getSubscriberCount() != subscriberCount) {
+                existing.setSubscriberCount(subscriberCount);
+                repository.save(existing);
+                System.out.println("[" + name + "] 구독자 업데이트 완료: " + subscriberCount);
+              } else {
+                System.out.println("[" + name + "] 구독자 수 동일(" + subscriberCount + "), 업데이트 스킵");
               }
-
-              String subscriberText = subscriberElement.text();
-              if (subscriberText.isBlank()) {
-                System.out.println("[" + name + "] 구독자 텍스트가 비어있음, 건너뜀");
-                return;
-              }
-
-              int subscriberCount = Integer.parseInt(subscriberText.replaceAll("[^0-9]", ""));
+            } else {
               SubscriberHistory history = new SubscriberHistory(name, url, today, subscriberCount);
               repository.save(history);
-              System.out.println("[" + name + "] 구독자 저장 완료: " + subscriberCount);
-            } catch (IOException e) {
-              System.out.println("[" + name + "] 크롤링 실패: " + e.getMessage());
-            } catch (NumberFormatException e) {
-              System.out.println("[" + name + "] 숫자 파싱 실패: " + e.getMessage());
+              System.out.println("[" + name + "] 신규 구독자 저장 완료: " + subscriberCount);
             }
+          } catch (IOException e) {
+            System.out.println("[" + name + "] 크롤링 실패: " + e.getMessage());
+          } catch (NumberFormatException e) {
+            System.out.println("[" + name + "] 숫자 파싱 실패: " + e.getMessage());
           }
         });
   }
@@ -77,22 +84,14 @@ public class TelegramService {
     LocalDate today = LocalDate.now();
     LocalDate tenDaysAgo = today.minusDays(11);
 
-    // 오늘 데이터 부족할 때만 동작
-    List<SubscriberHistory> todayData = repository.findByDate(today);
-    if (todayData.size() < channels.size()) {
-      System.out.println(
-          "오늘 데이터 부족 (" + todayData.size() + "/" + channels.size() + ") → 부족한 채널만 저장");
-      saveMissingTodaySubscribers();
-    }
-
-    // 10일치 데이터 반환
+    // 조건부 save 로직 제거하고, 무조건 조회만!
     return repository.findByDateBetween(tenDaysAgo, today);
   }
 
   // 매일 자동 저장
   @Scheduled(cron = "0 0 9 * * *")
   public void autoSave() {
-    saveMissingTodaySubscribers();
+    saveTodaySubscribers();
     System.out.println("스케줄러가 오늘 구독자 수 저장 완료!");
   }
 }

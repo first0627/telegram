@@ -16,14 +16,12 @@ public class TelegramController {
     this.telegramService = telegramService;
   }
 
-  // 수동 저장 API
   @PostMapping("/save")
   public String saveToday() {
-    telegramService.saveMissingTodaySubscribers();
-    return "오늘 구독자 수 저장 완료";
+    telegramService.saveTodaySubscribers();
+    return "오늘 구독자 수 저장 및 갱신 완료";
   }
 
-  // 10일치 이력 조회 API
   @GetMapping("/history")
   public List<SubscriberHistory> getHistory() {
     return telegramService.getLast10DaysData();
