@@ -11,6 +11,7 @@ import org.sight.tel.entity.SubscriberHistory;
 import org.sight.tel.repository.SubscriberHistoryRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @Service
 public class TelegramService {
@@ -89,9 +90,15 @@ public class TelegramService {
   }
 
   // 매일 자동 저장
-  @Scheduled(cron = "0 59 14 * * *")
+  @Scheduled(cron = "0 */10 * * * *")
   public void autoSave() {
     saveTodaySubscribers();
     System.out.println("스케줄러가 오늘 구독자 수 저장 완료!");
+  }
+
+  @GetMapping("/ping")
+  public String ping() {
+    System.out.println("ping 요청 수신");
+    return "pong";
   }
 }
