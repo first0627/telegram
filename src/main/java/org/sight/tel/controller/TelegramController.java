@@ -26,4 +26,10 @@ public class TelegramController {
   public List<SubscriberHistory> getHistory() {
     return telegramService.getLast10DaysData();
   }
+
+  @GetMapping("/ping")
+  public String ping() {
+    System.out.println("ping 요청 수신");
+    return "pong";
+  }
 }
