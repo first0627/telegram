@@ -19,6 +19,9 @@ spring:
       hibernate:
         format_sql: true
 
+server:
+  port: ${PORT}
+
 logging:
   level:
     org.hibernate.SQL: debug
