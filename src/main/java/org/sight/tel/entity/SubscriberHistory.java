@@ -3,6 +3,7 @@ package org.sight.tel.entity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import lombok.Data;
 
 @Entity
@@ -27,7 +28,7 @@ public class SubscriberHistory {
   private Integer subscriberCount;
 
   @Column(nullable = false)
-  private LocalDateTime createdAt = LocalDateTime.now();
+  private LocalDateTime createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
   // 생성자
   public SubscriberHistory() {}
