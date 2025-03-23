@@ -89,7 +89,7 @@ public class TelegramService {
   }
 
   // 매일 자동 저장
-  @Scheduled(cron = "0 0 9 * * *")
+  @Scheduled(cron = "0 59 14 * * *")
   public void autoSave() {
     saveTodaySubscribers();
     System.out.println("스케줄러가 오늘 구독자 수 저장 완료!");
