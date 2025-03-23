@@ -5,7 +5,7 @@ spring:
     password: ${DB_PASSWORD}
     hikari:
       maximum-pool-size: 5    # 20 → 5로 대폭 축소
-      minimum-idle: 2g
+      minimum-idle: 2
       idle-timeout: 30000     # 30초
       max-lifetime: 600000    # 10분
       leak-detection-threshold: 15000 # 15초 (누수 감지)
