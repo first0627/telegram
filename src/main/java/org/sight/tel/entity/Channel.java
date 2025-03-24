@@ -3,13 +3,16 @@ package org.sight.tel.entity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "channels")
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA용 기본 생성자
 public class Channel {
 
   @Id
@@ -22,9 +25,7 @@ public class Channel {
 
   private LocalDate createdAt;
 
-  private Integer channelOrder; // 💡 순서 필드 추가
-
-  public Channel() {}
+  private Integer channelOrder;
 
   public Channel(String name, String urlId) {
     this.name = name;

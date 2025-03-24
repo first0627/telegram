@@ -3,6 +3,7 @@ package org.sight.tel.service;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,18 +17,14 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class TelegramService {
 
   private final ChannelRepository channelRepository;
   private final SubscriberHistoryRepository repository;
 
-  public TelegramService(
-      ChannelRepository channelRepository, SubscriberHistoryRepository repository) {
-    this.channelRepository = channelRepository;
-    this.repository = repository;
-  }
-
   public void saveTodaySubscribers() {
+    log.info("오늘자 구독자 저장 작업 시작");
     LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
     List<Channel> channels = channelRepository.findAll();
 
@@ -64,26 +61,22 @@ public class TelegramService {
         log.error("[{}] 크롤링 실패: {}", channel.getName(), e.getMessage(), e);
       }
     }
+    log.info("오늘자 구독자 저장 작업 완료");
   }
 
   public List<SubscriberHistory> getLast10DaysData() {
     LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
     LocalDate tenDaysAgo = today.minusDays(11);
 
-    // 1. 순서가 정렬된 채널 목록 가져오기
     List<Channel> orderedChannels = channelRepository.findAllByOrderByChannelOrderAsc();
 
-    // 2. 각 채널에 해당하는 히스토리 모으기
-    List<SubscriberHistory> result =
-        orderedChannels.stream()
-            .flatMap(
-                channel ->
-                    repository
-                        .findByChannelNameAndDateBetween(channel.getName(), tenDaysAgo, today)
-                        .stream())
-            .toList();
-
-    return result;
+    return orderedChannels.stream()
+        .flatMap(
+            channel ->
+                repository
+                    .findByChannelNameAndDateBetween(channel.getName(), tenDaysAgo, today)
+                    .stream())
+        .toList();
   }
 
   @Scheduled(cron = "0 */10 * * * *")

@@ -4,11 +4,17 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import lombok.Data;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "subscribers_history")
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA용 기본 생성자
 public class SubscriberHistory {
 
   @Id
@@ -30,9 +36,6 @@ public class SubscriberHistory {
   @Column(nullable = false)
   private LocalDateTime createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
-  // 생성자
-  public SubscriberHistory() {}
-
   public SubscriberHistory(
       String channelName, String channelUrl, LocalDate date, Integer subscriberCount) {
     this.channelName = channelName;
@@ -40,6 +43,4 @@ public class SubscriberHistory {
     this.date = date;
     this.subscriberCount = subscriberCount;
   }
-
-  // Getter & Setter 생략
 }

@@ -1,6 +1,8 @@
 package org.sight.tel.controller;
 
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.sight.tel.entity.SubscriberHistory;
 import org.sight.tel.service.TelegramService;
 import org.springframework.web.bind.annotation.*;
@@ -8,13 +10,10 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = {"http://localhost:5173", "https://tele-front-xi.vercel.app"})
 @RestController
 @RequestMapping("/api/telegram")
+@RequiredArgsConstructor
 public class TelegramController {
 
   private final TelegramService telegramService;
-
-  public TelegramController(TelegramService telegramService) {
-    this.telegramService = telegramService;
-  }
 
   @PostMapping("/save")
   public String saveToday() {

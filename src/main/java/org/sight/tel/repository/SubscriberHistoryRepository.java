@@ -9,9 +9,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SubscriberHistoryRepository extends JpaRepository<SubscriberHistory, Long> {
-  List<SubscriberHistory> findByDateBetween(LocalDate start, LocalDate end);
-
-  List<SubscriberHistory> findByDate(LocalDate date);
 
   Optional<SubscriberHistory> findByChannelNameAndDate(String channelName, LocalDate date);
 
