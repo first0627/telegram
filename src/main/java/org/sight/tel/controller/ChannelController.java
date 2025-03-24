@@ -10,6 +10,7 @@ import org.sight.tel.entity.Channel;
 import org.sight.tel.repository.ChannelRepository;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = {"http://localhost:5173", "https://tele-front-xi.vercel.app"})
 @RestController
 @RequestMapping("/api/channels")
 public class ChannelController {
@@ -32,8 +33,7 @@ public class ChannelController {
 
     try {
       Document doc = Jsoup.connect(channelUrl).get();
-      String name = Objects.requireNonNull(doc.selectFirst("div.tgme_page_title > span"))
-              .text();
+      String name = Objects.requireNonNull(doc.selectFirst("div.tgme_page_title > span")).text();
 
       Channel channel = new Channel(name, urlId);
 
