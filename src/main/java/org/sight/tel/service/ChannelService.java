@@ -8,6 +8,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.sight.tel.entity.Channel;
+import org.sight.tel.exception.ChannelException;
 import org.sight.tel.repository.ChannelRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +36,7 @@ public class ChannelService {
       String name =
           Optional.ofNullable(doc.selectFirst("div.tgme_page_title > span"))
               .map(Element::text)
-              .orElseThrow(() -> new IllegalStateException("채널 이름 태그를 찾을 수 없습니다."));
+              .orElseThrow(() -> new ChannelException("채널 이름 태그를 찾을 수 없습니다."));
 
       Channel channel = new Channel(name, urlId);
 
@@ -49,7 +50,7 @@ public class ChannelService {
 
     } catch (IOException e) {
       log.error("크롤링 실패 [{}]: {}", urlId, e.getMessage());
-      throw new IllegalStateException("크롤링 중 네트워크 오류: " + e.getMessage(), e);
+      throw new ChannelException("크롤링 실패: " + e.getMessage());
     }
   }
 

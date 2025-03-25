@@ -10,6 +10,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.sight.tel.entity.Channel;
 import org.sight.tel.entity.SubscriberHistory;
+import org.sight.tel.exception.ChannelException;
 import org.sight.tel.repository.ChannelRepository;
 import org.sight.tel.repository.SubscriberHistoryRepository;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -59,6 +60,7 @@ public class TelegramService {
         }
       } catch (Exception e) {
         log.error("[{}] 크롤링 실패: {}", channel.getName(), e.getMessage(), e);
+        throw new ChannelException("[" + channel.getName() + "] 크롤링 중 오류 발생: " + e.getMessage());
       }
     }
     log.info("오늘자 구독자 저장 작업 완료");
