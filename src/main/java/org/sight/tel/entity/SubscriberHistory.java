@@ -4,18 +4,18 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @Table(name = "subscribers_history")
-@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA용 기본 생성자
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA 기본 생성자
 public class SubscriberHistory {
+
+  @Column(nullable = false)
+  private final LocalDateTime createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,14 +33,15 @@ public class SubscriberHistory {
   @Column(nullable = false)
   private Integer subscriberCount;
 
-  @Column(nullable = false)
-  private LocalDateTime createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-
   public SubscriberHistory(
       String channelName, String channelUrl, LocalDate date, Integer subscriberCount) {
     this.channelName = channelName;
     this.channelUrl = channelUrl;
     this.date = date;
     this.subscriberCount = subscriberCount;
+  }
+
+  public void updateSubscriberCount(int newCount) {
+    this.subscriberCount = newCount;
   }
 }

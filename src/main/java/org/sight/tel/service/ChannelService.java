@@ -41,7 +41,7 @@ public class ChannelService {
       Channel channel = new Channel(name, urlId);
 
       Integer maxOrder = channelRepository.findMaxChannelOrder().orElse(0);
-      channel.setChannelOrder(maxOrder + 1);
+      channel.changeChannelOrder(maxOrder + 1); // setter 대신 의미 있는 메서드 사용
 
       Channel savedChannel = channelRepository.save(channel);
       log.info("채널 등록 완료: {} (urlId: {}, order: {})", name, urlId, savedChannel.getChannelOrder());
@@ -72,7 +72,7 @@ public class ChannelService {
         log.warn("채널 ID {} 를 찾을 수 없습니다. 건너뜀", id);
         continue;
       }
-      channel.setChannelOrder(i + 1);
+      channel.changeChannelOrder(i + 1); // setter 대신 의미 있는 메서드
       channelsToSave.add(channel);
     }
 

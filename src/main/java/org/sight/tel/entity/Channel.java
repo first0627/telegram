@@ -6,13 +6,11 @@ import java.time.ZoneId;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "channels")
-@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA용 기본 생성자
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA 기본 생성자
 public class Channel {
 
   @Id
@@ -21,7 +19,7 @@ public class Channel {
 
   private String name;
 
-  private String urlId; // stock_messenger 같은 ID (t.me/ 뒤에 오는 값)
+  private String urlId;
 
   private LocalDate createdAt;
 
@@ -32,6 +30,10 @@ public class Channel {
     this.urlId = urlId;
     this.createdAt = LocalDate.now(ZoneId.of("Asia/Seoul"));
     this.channelOrder = 0;
+  }
+
+  public void changeChannelOrder(int newOrder) {
+    this.channelOrder = newOrder;
   }
 
   public String getChannelUrl() {

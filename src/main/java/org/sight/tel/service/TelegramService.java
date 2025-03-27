@@ -45,8 +45,8 @@ public class TelegramService {
             repository.findByChannelNameAndDate(channel.getName(), today).orElse(null);
 
         if (existing != null) {
-          if (existing.getSubscriberCount() != subscriberCount) {
-            existing.setSubscriberCount(subscriberCount);
+          if (!existing.getSubscriberCount().equals(subscriberCount)) {
+            existing.updateSubscriberCount(subscriberCount); // setter 제거
             repository.save(existing);
             log.info("[{}] 구독자 업데이트 완료: {}", channel.getName(), subscriberCount);
           } else {
