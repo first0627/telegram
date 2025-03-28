@@ -90,6 +90,5 @@ public class ChannelService {
     log.info("채널 삭제 완료, ID: {}", id);
   }
 
-  @Transactional(readOnly = true)
   public record ChannelDto(Long id, String name, String urlId, int channelOrder) {}
 }
