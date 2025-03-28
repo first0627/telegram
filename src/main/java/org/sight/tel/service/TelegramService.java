@@ -75,8 +75,7 @@ public class TelegramService {
     LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
     LocalDate tenDaysAgo = today.minusDays(11);
 
-    List<SubscriberHistory> histories = repository.findByDateBetween(tenDaysAgo, today);
-
+    List<SubscriberHistory> histories = repository.findSortedHistoryBetween(today, tenDaysAgo);
     return histories.stream()
         .map(
             h ->

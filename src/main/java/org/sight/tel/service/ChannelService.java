@@ -20,11 +20,10 @@ public class ChannelService {
 
   private final ChannelRepository channelRepository;
 
-  @Transactional(readOnly = true)
-  public List<Channel> getAllChannels() {
-    List<Channel> channels = channelRepository.findAllByOrderByChannelOrderAsc();
-    log.info("모든 채널 조회 완료, 총 {}개 채널", channels.size());
-    return channels;
+  public List<ChannelDto> getAllChannels() {
+    return channelRepository.findAllByOrderByChannelOrderAsc().stream()
+        .map(c -> new ChannelDto(c.getId(), c.getName(), c.getUrlId(), c.getChannelOrder()))
+        .toList();
   }
 
   @Transactional
@@ -90,4 +89,7 @@ public class ChannelService {
     channelRepository.delete(channel); // 이때 JPA가 연관된 자식도 함께 삭제
     log.info("채널 삭제 완료, ID: {}", id);
   }
+
+  @Transactional(readOnly = true)
+  public record ChannelDto(Long id, String name, String urlId, int channelOrder) {}
 }

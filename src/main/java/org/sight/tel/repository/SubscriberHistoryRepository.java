@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.sight.tel.entity.SubscriberHistory;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -13,9 +14,12 @@ public interface SubscriberHistoryRepository extends JpaRepository<SubscriberHis
 
   Optional<SubscriberHistory> findByChannelNameAndDate(String channelName, LocalDate date);
 
-  List<SubscriberHistory> findByChannelNameAndDateBetween(
-      String channelName, LocalDate start, LocalDate end);
-
-  @EntityGraph(attributePaths = {"channel"})
-  List<SubscriberHistory> findByDateBetween(LocalDate start, LocalDate end);
+  @Query(
+"""
+    SELECT sh FROM SubscriberHistory sh
+    JOIN FETCH sh.channel c
+    WHERE sh.date BETWEEN :start AND :end
+    ORDER BY c.channelOrder
+""")
+  List<SubscriberHistory> findSortedHistoryBetween(LocalDate start, LocalDate end);
 }

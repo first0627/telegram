@@ -6,6 +6,8 @@ import org.sight.tel.entity.Channel;
 import org.sight.tel.service.ChannelService;
 import org.springframework.web.bind.annotation.*;
 
+import static org.sight.tel.service.ChannelService.*;
+
 @CrossOrigin(origins = {"http://localhost:5173", "https://tele-front-xi.vercel.app"})
 @RestController
 @RequestMapping("/api/channels")
@@ -15,7 +17,7 @@ public class ChannelController {
   private final ChannelService channelService;
 
   @GetMapping
-  public List<Channel> getAllChannels() {
+  public List<ChannelDto> getAllChannels() {
     return channelService.getAllChannels();
   }
 
