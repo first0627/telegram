@@ -82,7 +82,12 @@ public class ChannelService {
 
   @Transactional
   public void deleteChannel(Long id) {
-    channelRepository.deleteById(id);
+    Channel channel =
+        channelRepository
+            .findById(id)
+            .orElseThrow(() -> new ChannelException("채널을 찾을 수 없습니다. id=" + id));
+
+    channelRepository.delete(channel); // 이때 JPA가 연관된 자식도 함께 삭제
     log.info("채널 삭제 완료, ID: {}", id);
   }
 }

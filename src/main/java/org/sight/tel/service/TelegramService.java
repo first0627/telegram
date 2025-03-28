@@ -46,7 +46,7 @@ public class TelegramService {
 
         if (existing != null) {
           if (!existing.getSubscriberCount().equals(subscriberCount)) {
-            existing.updateSubscriberCount(subscriberCount); // setter 제거
+            existing.updateSubscriberCount(subscriberCount);
             repository.save(existing);
             log.info("[{}] 구독자 업데이트 완료: {}", channel.getName(), subscriberCount);
           } else {
@@ -55,14 +55,17 @@ public class TelegramService {
         } else {
           SubscriberHistory history =
               new SubscriberHistory(channel.getName(), url, today, subscriberCount);
+          history.assignToChannel(channel); // 연관관계 설정!
           repository.save(history);
           log.info("[{}] 신규 구독자 저장 완료: {}", channel.getName(), subscriberCount);
         }
+
       } catch (Exception e) {
         log.error("[{}] 크롤링 실패: {}", channel.getName(), e.getMessage(), e);
         throw new ChannelException("[" + channel.getName() + "] 크롤링 중 오류 발생: " + e.getMessage());
       }
     }
+
     log.info("오늘자 구독자 저장 작업 완료");
   }
 

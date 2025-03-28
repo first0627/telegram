@@ -8,10 +8,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
+@Entity
 @Table(name = "subscribers_history")
-@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA 기본 생성자
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SubscriberHistory {
 
   @Column(nullable = false)
@@ -20,6 +20,10 @@ public class SubscriberHistory {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "channel_id", nullable = false)
+  private Channel channel;
 
   @Column(nullable = false)
   private String channelName;
@@ -43,5 +47,14 @@ public class SubscriberHistory {
 
   public void updateSubscriberCount(int newCount) {
     this.subscriberCount = newCount;
+  }
+
+  // 연관관계 설정: 내부에서만 사용
+  public void assignToChannel(Channel channel) {
+    this.channel = channel;
+  }
+
+  void unassignChannel() {
+    this.channel = null;
   }
 }
