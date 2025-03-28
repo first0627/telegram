@@ -15,6 +15,7 @@ import org.sight.tel.repository.ChannelRepository;
 import org.sight.tel.repository.SubscriberHistoryRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -69,6 +70,7 @@ public class TelegramService {
     log.info("오늘자 구독자 저장 작업 완료");
   }
 
+  @Transactional(readOnly = true)
   public List<SubscriberHistoryDto> getLast10DaysData() {
     LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
     LocalDate tenDaysAgo = today.minusDays(11);

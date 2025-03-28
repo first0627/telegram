@@ -1,5 +1,7 @@
 package org.sight.tel.controller;
 
+import static org.sight.tel.service.TelegramService.*;
+
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,7 +26,7 @@ public class TelegramController {
   }
 
   @GetMapping("/history")
-  public List<TelegramService.SubscriberHistoryDto> getHistory() {
+  public List<SubscriberHistoryDto> getHistory() {
     return telegramService.getLast10DaysData();
   }
 
