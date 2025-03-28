@@ -56,7 +56,7 @@ public class TelegramService {
         } else {
           SubscriberHistory history =
               new SubscriberHistory(channel.getName(), url, today, subscriberCount);
-          history.assignToChannel(channel); // 연관관계 설정!
+          history.assignToChannel(channel);
           repository.save(history);
           log.info("[{}] 신규 구독자 저장 완료: {}", channel.getName(), subscriberCount);
         }
@@ -75,18 +75,13 @@ public class TelegramService {
     LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
     LocalDate tenDaysAgo = today.minusDays(11);
 
-    List<Channel> orderedChannels = channelRepository.findAllByOrderByChannelOrderAsc();
+    List<SubscriberHistory> histories = repository.findWithChannelBetweenDates(tenDaysAgo, today);
 
-    return orderedChannels.stream()
-        .flatMap(
-            channel ->
-                repository
-                    .findByChannelNameAndDateBetween(channel.getName(), tenDaysAgo, today)
-                    .stream())
+    return histories.stream()
         .map(
             history ->
                 new SubscriberHistoryDto(
-                    history.getChannel().getName(), // or getChannelName()
+                    history.getChannel().getName(),
                     history.getChannel().getChannelUrl(),
                     history.getDate(),
                     history.getSubscriberCount()))
