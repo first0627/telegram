@@ -69,7 +69,7 @@ public class TelegramService {
     log.info("오늘자 구독자 저장 작업 완료");
   }
 
-  public List<SubscriberHistory> getLast10DaysData() {
+  public List<SubscriberHistoryDto> getLast10DaysData() {
     LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
     LocalDate tenDaysAgo = today.minusDays(11);
 
@@ -81,6 +81,13 @@ public class TelegramService {
                 repository
                     .findByChannelNameAndDateBetween(channel.getName(), tenDaysAgo, today)
                     .stream())
+        .map(
+            history ->
+                new SubscriberHistoryDto(
+                    history.getChannel().getName(), // or getChannelName()
+                    history.getChannel().getChannelUrl(),
+                    history.getDate(),
+                    history.getSubscriberCount()))
         .toList();
   }
 
@@ -89,4 +96,7 @@ public class TelegramService {
     saveTodaySubscribers();
     log.info("스케줄러가 오늘 구독자 수 저장 완료!");
   }
+
+  public record SubscriberHistoryDto(
+      String channelName, String channelUrl, LocalDate date, int subscriberCount) {}
 }

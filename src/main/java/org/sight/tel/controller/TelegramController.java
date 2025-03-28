@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sight.tel.entity.SubscriberHistory;
 import org.sight.tel.service.TelegramService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,7 @@ public class TelegramController {
   }
 
   @GetMapping("/history")
-  public List<SubscriberHistory> getHistory() {
+  public List<TelegramService.SubscriberHistoryDto> getHistory() {
     return telegramService.getLast10DaysData();
   }
 
