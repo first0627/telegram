@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SubscriberHistory {
 
-  @Column(nullable = false)
+  @Column(nullable = false, updatable = false)
   private final LocalDateTime createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 
   @Id
@@ -37,24 +37,26 @@ public class SubscriberHistory {
   @Column(nullable = false)
   private Integer subscriberCount;
 
-  public SubscriberHistory(
-      String channelName, String channelUrl, LocalDate date, Integer subscriberCount) {
-    this.channelName = channelName;
-    this.channelUrl = channelUrl;
-    this.date = date;
-    this.subscriberCount = subscriberCount;
+  // ✅ 팩토리 메서드
+  public static SubscriberHistory create(Channel channel, LocalDate date, int subscriberCount) {
+    SubscriberHistory history = new SubscriberHistory();
+    history.channel = channel;
+    history.channelName = channel.getName();
+    history.channelUrl = channel.getChannelUrl();
+    history.date = date;
+    history.subscriberCount = subscriberCount;
+    return history;
   }
 
   public void updateSubscriberCount(int newCount) {
     this.subscriberCount = newCount;
   }
 
-  // 연관관계 설정: 내부에서만 사용
   public void assignToChannel(Channel channel) {
     this.channel = channel;
   }
 
-  void unassignChannel() {
+  public void unassignChannel() {
     this.channel = null;
   }
 }

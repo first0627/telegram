@@ -20,6 +20,7 @@ public class ChannelService {
 
   private final ChannelRepository channelRepository;
 
+  @Transactional(readOnly = true)
   public List<ChannelDto> getAllChannels() {
     return channelRepository.findAllByOrderByChannelOrderAsc().stream()
         .map(c -> new ChannelDto(c.getId(), c.getName(), c.getUrlId(), c.getChannelOrder()))
@@ -28,24 +29,19 @@ public class ChannelService {
 
   @Transactional
   public Channel addChannel(String urlId) {
-    String channelUrl = "https://t.me/" + urlId;
-
     try {
-      Document doc = Jsoup.connect(channelUrl).get();
+      Document doc = Jsoup.connect("https://t.me/" + urlId).get();
       String name =
           Optional.ofNullable(doc.selectFirst("div.tgme_page_title > span"))
               .map(Element::text)
               .orElseThrow(() -> new ChannelException("채널 이름 태그를 찾을 수 없습니다."));
 
-      Channel channel = new Channel(name, urlId);
+      int nextOrder = channelRepository.findMaxChannelOrder().orElse(0) + 1;
+      Channel channel = Channel.createChannel(name, urlId, nextOrder);
 
-      Integer maxOrder = channelRepository.findMaxChannelOrder().orElse(0);
-      channel.changeChannelOrder(maxOrder + 1); // setter 대신 의미 있는 메서드 사용
-
-      Channel savedChannel = channelRepository.save(channel);
-      log.info("채널 등록 완료: {} (urlId: {}, order: {})", name, urlId, savedChannel.getChannelOrder());
-
-      return savedChannel;
+      Channel saved = channelRepository.save(channel);
+      log.info("채널 등록 완료: {} (urlId: {}, order: {})", name, urlId, saved.getChannelOrder());
+      return saved;
 
     } catch (IOException e) {
       log.error("크롤링 실패 [{}]: {}", urlId, e.getMessage());
@@ -63,7 +59,7 @@ public class ChannelService {
       channelMap.put(channel.getId(), channel);
     }
 
-    List<Channel> channelsToSave = new ArrayList<>();
+    List<Channel> toSave = new ArrayList<>();
     for (int i = 0; i < orderedIds.size(); i++) {
       Long id = orderedIds.get(i);
       Channel channel = channelMap.get(id);
@@ -71,11 +67,11 @@ public class ChannelService {
         log.warn("채널 ID {} 를 찾을 수 없습니다. 건너뜀", id);
         continue;
       }
-      channel.changeChannelOrder(i + 1); // setter 대신 의미 있는 메서드
-      channelsToSave.add(channel);
+      channel.changeChannelOrder(i + 1);
+      toSave.add(channel);
     }
 
-    channelRepository.saveAll(channelsToSave);
+    channelRepository.saveAll(toSave);
     log.info("채널 순서 재정렬 완료");
   }
 
@@ -86,7 +82,7 @@ public class ChannelService {
             .findById(id)
             .orElseThrow(() -> new ChannelException("채널을 찾을 수 없습니다. id=" + id));
 
-    channelRepository.delete(channel); // 이때 JPA가 연관된 자식도 함께 삭제
+    channelRepository.delete(channel);
     log.info("채널 삭제 완료, ID: {}", id);
   }
 

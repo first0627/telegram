@@ -26,48 +26,52 @@ public class TelegramService {
   private final SubscriberHistoryRepository repository;
 
   public void saveTodaySubscribers() {
-    log.info("오늘자 구독자 저장 작업 시작");
+    log.info("📦 오늘자 구독자 저장 작업 시작");
+
     LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
     List<Channel> channels = channelRepository.findAll();
 
     for (Channel channel : channels) {
-      String url = channel.getChannelUrl();
       try {
-        Document doc = Jsoup.connect(url).get();
-        Elements subscriberElement = doc.select("div.tgme_page_extra");
-
-        if (subscriberElement.isEmpty() || subscriberElement.text().isBlank()) {
-          log.warn("[{}] 구독자 정보 없음, 건너뜀", channel.getName());
-          continue;
-        }
-
-        int subscriberCount = Integer.parseInt(subscriberElement.text().replaceAll("[^0-9]", ""));
-        SubscriberHistory existing =
-            repository.findByChannelNameAndDate(channel.getName(), today).orElse(null);
-
-        if (existing != null) {
-          if (!existing.getSubscriberCount().equals(subscriberCount)) {
-            existing.updateSubscriberCount(subscriberCount);
-            repository.save(existing);
-            log.info("[{}] 구독자 업데이트 완료: {}", channel.getName(), subscriberCount);
-          } else {
-            log.info("[{}] 구독자 수 동일({}), 업데이트 스킵", channel.getName(), subscriberCount);
-          }
-        } else {
-          SubscriberHistory history =
-              new SubscriberHistory(channel.getName(), url, today, subscriberCount);
-          history.assignToChannel(channel);
-          repository.save(history);
-          log.info("[{}] 신규 구독자 저장 완료: {}", channel.getName(), subscriberCount);
-        }
-
+        int count = extractSubscriberCount(channel.getChannelUrl());
+        processSubscriber(channel, today, count);
       } catch (Exception e) {
-        log.error("[{}] 크롤링 실패: {}", channel.getName(), e.getMessage(), e);
-        throw new ChannelException("[" + channel.getName() + "] 크롤링 중 오류 발생: " + e.getMessage());
+        log.error("❌ [{}] 크롤링 실패: {}", channel.getName(), e.getMessage(), e);
+        throw new ChannelException("[" + channel.getName() + "] 크롤링 오류: " + e.getMessage());
       }
     }
 
-    log.info("오늘자 구독자 저장 작업 완료");
+    log.info("✅ 오늘자 구독자 저장 작업 완료");
+  }
+
+  private int extractSubscriberCount(String url) throws Exception {
+    Document doc = Jsoup.connect(url).get();
+    Elements element = doc.select("div.tgme_page_extra");
+
+    if (element.isEmpty() || element.text().isBlank()) {
+      throw new IllegalStateException("구독자 정보를 찾을 수 없습니다.");
+    }
+
+    return Integer.parseInt(element.text().replaceAll("[^0-9]", ""));
+  }
+
+  private void processSubscriber(Channel channel, LocalDate date, int count) {
+    SubscriberHistory existing =
+        repository.findByChannelNameAndDate(channel.getName(), date).orElse(null);
+
+    if (existing != null) {
+      if (!existing.getSubscriberCount().equals(count)) {
+        existing.updateSubscriberCount(count);
+        repository.save(existing);
+        log.info("🔄 [{}] 구독자 수 업데이트: {}", channel.getName(), count);
+      } else {
+        log.info("⏭️ [{}] 동일 구독자 수({}), 업데이트 생략", channel.getName(), count);
+      }
+    } else {
+      SubscriberHistory history = SubscriberHistory.create(channel, date, count);
+      repository.save(history);
+      log.info("🆕 [{}] 신규 구독자 저장 완료: {}", channel.getName(), count);
+    }
   }
 
   @Transactional(readOnly = true)
@@ -75,8 +79,7 @@ public class TelegramService {
     LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
     LocalDate tenDaysAgo = today.minusDays(11);
 
-    List<SubscriberHistory> histories = repository.findSortedHistoryBetween(tenDaysAgo, today);
-    return histories.stream()
+    return repository.findSortedHistoryBetween(tenDaysAgo, today).stream()
         .map(
             h ->
                 new SubscriberHistoryDto(
@@ -90,7 +93,7 @@ public class TelegramService {
   @Scheduled(cron = "0 */10 * * * *")
   public void autoSave() {
     saveTodaySubscribers();
-    log.info("스케줄러가 오늘 구독자 수 저장 완료!");
+    log.info("⏰ 스케줄러가 오늘 구독자 수 저장 완료!");
   }
 
   public record SubscriberHistoryDto(

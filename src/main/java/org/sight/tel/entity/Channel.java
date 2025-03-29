@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "channels")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA를 위한 기본 생성자 (외부에서는 생성 불가)
 public class Channel {
 
   @OneToMany(mappedBy = "channel", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -24,15 +24,21 @@ public class Channel {
   private Long id;
 
   private String name;
+
   private String urlId;
+
   private LocalDate createdAt;
+
   private Integer channelOrder;
 
-  public Channel(String name, String urlId) {
-    this.name = name;
-    this.urlId = urlId;
-    this.createdAt = LocalDate.now(ZoneId.of("Asia/Seoul"));
-    this.channelOrder = 0;
+  // ✅ 팩토리 메서드
+  public static Channel createChannel(String name, String urlId, int channelOrder) {
+    Channel channel = new Channel();
+    channel.name = name;
+    channel.urlId = urlId;
+    channel.createdAt = LocalDate.now(ZoneId.of("Asia/Seoul"));
+    channel.channelOrder = channelOrder;
+    return channel;
   }
 
   public void changeChannelOrder(int newOrder) {
