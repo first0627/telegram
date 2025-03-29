@@ -56,8 +56,7 @@ public class TelegramService {
   }
 
   private void processSubscriber(Channel channel, LocalDate date, int count) {
-    SubscriberHistory existing =
-        repository.findByChannelNameAndDate(channel.getName(), date).orElse(null);
+    SubscriberHistory existing = repository.findByChannelAndDate(channel, date).orElse(null);
 
     if (existing != null) {
       if (!existing.getSubscriberCount().equals(count)) {

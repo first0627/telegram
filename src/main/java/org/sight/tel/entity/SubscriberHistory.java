@@ -25,24 +25,16 @@ public class SubscriberHistory {
   @JoinColumn(name = "channel_id", nullable = false)
   private Channel channel;
 
-  @Column(nullable = false)
-  private String channelName;
-
-  @Column(nullable = false)
-  private String channelUrl;
-
   @Column(name = "date", nullable = false, columnDefinition = "date")
   private LocalDate date;
 
   @Column(nullable = false)
   private Integer subscriberCount;
 
-  // ✅ 팩토리 메서드
+  // ✅ 팩토리 메서드 (channelName, channelUrl 제거)
   public static SubscriberHistory create(Channel channel, LocalDate date, int subscriberCount) {
     SubscriberHistory history = new SubscriberHistory();
     history.channel = channel;
-    history.channelName = channel.getName();
-    history.channelUrl = channel.getChannelUrl();
     history.date = date;
     history.subscriberCount = subscriberCount;
     return history;
